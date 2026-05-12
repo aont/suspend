@@ -1,0 +1,117 @@
+<html>
+<head>
+<script>
+window.addEventListener("load", (e) => {
+    let searchParams = new URL(location.href).searchParams;
+    let searchParamsTitle = searchParams.get('title');
+    let searchParamsUrl = searchParams.get('url');
+    let searchParamsFavicon = searchParams.getAll('favicon');
+    let searchParamsOgimg = searchParams.get('ogimg');
+    console.log({searchParamsTitle, searchParamsUrl, searchParamsFavicon, searchParamsOgimg});
+
+    if (searchParamsUrl) {
+        let canonicalLink = document.querySelector('link[rel="canonical"]');
+        if (!canonicalLink) {
+            canonicalLink = document.createElement("link");
+            canonicalLink.setAttribute("rel", "canonical");
+            document.head.appendChild(canonicalLink);
+        }
+        canonicalLink.setAttribute("href", searchParamsUrl);
+
+        let ogUrl = document.querySelector('meta[property="og:url"]');
+        if (!ogUrl) {
+            ogUrl = document.createElement("meta");
+            ogUrl.setAttribute("property", "og:url");
+            document.head.appendChild(ogUrl);
+        }
+        ogUrl.setAttribute("content", searchParamsUrl);
+    }
+
+    if (searchParamsOgimg) {
+        let ogImage = document.querySelector('meta[property="og:image"]');
+        if (!ogImage) {
+            ogImage = document.createElement("meta");
+            ogImage.setAttribute("property", "og:image");
+            document.head.appendChild(ogImage);
+        }
+        ogImage.setAttribute("content", searchParamsOgimg);
+    }
+
+    if (searchParamsTitle) {
+        let ogTitle = document.querySelector('meta[property="og:title"]');
+        if (!ogTitle) {
+            ogTitle = document.createElement("meta");
+            ogTitle.setAttribute("property", "og:title");
+            document.head.appendChild(ogTitle);
+        }
+        ogTitle.setAttribute("content", searchParamsTitle);
+    }
+
+    if (searchParamsUrl) {
+        const baseUrl = new URL(searchParamsUrl);
+        let faviconHref;
+        let faviconSvgHref;
+        for(let i = 0; i < searchParamsFavicon.length; i++) {
+            const faviconDict = JSON.parse(searchParamsFavicon[i]);
+            console.log(faviconDict);
+            const link = document.createElement("link");
+            for (const [key, value] of Object.entries(faviconDict)) {
+                const newValue = key === "href" ? new URL(value, baseUrl).href : value;
+                link.setAttribute(key, newValue);
+            }
+            if (!faviconHref) {
+                faviconHref = new URL(faviconDict.href, baseUrl).href;
+            }
+            if (!faviconSvgHref && faviconDict.href.toLowerCase().endsWith(".svg")) {
+                faviconSvgHref = new URL(faviconDict.href, baseUrl).href;
+            }
+            document.head.appendChild(link);
+            console.log(link);
+        }
+
+        let a = document.createElement("a");
+        a.style.fontSize = "15vw";
+        a.href = searchParamsUrl;
+        console.log(searchParamsOgimg);
+
+        if (searchParamsOgimg) {
+            let img = document.createElement("img");
+            img.style.display = "none";
+            img.addEventListener("load", () => { img.style.display = "block"; });
+            img.setAttribute("referrerpolicy", "no-referrer");
+            img.src = new URL(searchParamsOgimg, baseUrl).href;
+            img.style.width = "100%";
+            img.style.height = "auto";
+            a.appendChild(img);
+        } else {
+            if (faviconSvgHref) {
+                faviconHref = faviconSvgHref;
+            }
+            if (faviconHref) {
+                let faviconImg = document.createElement("img");
+                faviconImg.style.display = "none";
+                faviconImg.addEventListener("load", () => { faviconImg.style.display = "block"; });
+                faviconImg.setAttribute("referrerpolicy", "no-referrer");
+                console.log(faviconHref);
+                faviconImg.src = faviconHref;
+                faviconImg.style.width = "15vw";
+                faviconImg.style.height = "auto";
+                faviconImg.style.verticalAlign = "sub";
+                a.appendChild(faviconImg);
+            }
+        }
+
+        a.appendChild(document.createTextNode(searchParamsTitle ? searchParamsTitle : searchParamsUrl));
+
+        if (searchParamsTitle) {
+            document.title = searchParamsTitle;
+        }
+
+        document.body.appendChild(a);
+    }
+});
+</script>
+</head>
+<body>
+</body>
+</html>
