@@ -13,7 +13,7 @@ if (result.error || !result.code) {
   throw result.error || new Error("Terser minification produced no output");
 }
 
-const bookmarkletHref = "javascript:" + result.code.replaceAll("%", "%25").replaceAll("\"", "%22");;
+const bookmarkletHref = "javascript:" + result.code.replaceAll("%", "%25").replaceAll("\"", "%22").replaceAll("\\", "%5C");
 
 const template = fs.readFileSync("public/index.html", "utf8");
 const output = template.replace("__BOOKMARKLET_HREF__", JSON.stringify(bookmarkletHref));
