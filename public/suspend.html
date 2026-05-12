@@ -2,7 +2,11 @@
 <head>
 <script>
 window.addEventListener("load", (e) => {
-    let searchParams = new URL(location.href).searchParams;
+    const pageUrl = new URL(location.href);
+    let searchParams = pageUrl.searchParams;
+    if (!pageUrl.search && pageUrl.hash.startsWith("#?")) {
+        searchParams = new URLSearchParams(pageUrl.hash.slice(2));
+    }
     let searchParamsTitle = searchParams.get('title');
     let searchParamsUrl = searchParams.get('url');
     let searchParamsFavicon = searchParams.getAll('favicon');
