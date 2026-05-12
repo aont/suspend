@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.final_deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
@@ -33,17 +33,32 @@ jobs:
       - name: Install terser
         run: npm install --no-save terser
 
+      - name: Upload probe artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-probe
+          path: public
+
+      - name: Deploy probe artifact to GitHub Pages
+        id: probe_deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-probe
+
       - name: Build bookmarklet and index.html
         run: node scripts/build-bookmarklet.mjs
         env:
-          GITHUB_PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          GITHUB_PAGES_URL: ${{ steps.probe_deployment.outputs.page_url }}
 
       # Upload public/ as built as the Pages site artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-final
           path: public
 
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: final_deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-final
