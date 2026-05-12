@@ -7,7 +7,7 @@ if (!pagesUrl) {
 }
 
 const suspendUrl = new URL("./suspend.html", pagesUrl).href;
-const source = fs.readFileSync("public/bookmarklet.js", "utf8").replaceAll("__SUSPEND_URL__", suspendUrl);
+const source = fs.readFileSync("scripts/bookmarklet.js", "utf8").replaceAll("__SUSPEND_URL__", suspendUrl);
 const result = await terser.minify(source, { compress: { inline: false, sequences: false, join_vars: false }, mangle: false });
 if (result.error || !result.code) {
   throw result.error || new Error("Terser minification produced no output");
