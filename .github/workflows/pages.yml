@@ -6,6 +6,7 @@ on:
     # Deploy only when changes occur in public/ (skip condition)
     paths:
       - "public/**"
+      - "scripts/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
