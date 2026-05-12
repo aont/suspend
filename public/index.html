@@ -1,6 +1,33 @@
 <html>
 <head>
 <title>Page Suspend Helper Manual</title>
+<style>
+:root {
+    color-scheme: light dark;
+}
+
+body {
+    margin: 2rem;
+    font-family: system-ui, sans-serif;
+    background: #ffffff;
+    color: #111111;
+}
+
+a {
+    color: #0a58ca;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #121212;
+        color: #f2f2f2;
+    }
+
+    a {
+        color: #8ab4f8;
+    }
+}
+</style>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("link").href = __BOOKMARKLET_HREF__;
