@@ -14,8 +14,8 @@ if (result.error || !result.code) {
 }
 
 const dynamicSuspendExpr = `"+new URL('./suspend.html',window.location.href).href+"`;
-const bookmarkletHref = "javascript:" + result.code.replaceAll(suspendUrl, dynamicSuspendExpr);
+const bookmarkletHref = "javascript:" + result.code.replaceAll(suspendUrl, dynamicSuspendExpr).replaceAll("%", "%25").replaceAll("\"", "%22");;
 
 const template = fs.readFileSync("public/index.html", "utf8");
-const output = template.replace("__BOOKMARKLET_HREF__", bookmarkletHref);
+const output = template.replace("__BOOKMARKLET_HREF__", JSON.stringify(bookmarkletHref));
 fs.writeFileSync("public/index.html", output);
