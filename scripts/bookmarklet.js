@@ -144,6 +144,13 @@
         ogimgCandidates.push(thumbUrl);
       }
     }
+
+    if (currentUrl.hostname.includes("amazon.")) {
+      const landingImage = document.getElementById("landingImage");
+      if (landingImage && landingImage.src) {
+        ogimgCandidates.push(normalizeUrl(landingImage.src, targetUrl));
+      }
+    }
   } catch (e) {}
 
   Array.from(
