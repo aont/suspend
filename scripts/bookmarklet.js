@@ -58,6 +58,36 @@
     } catch (e) {}
   }
 
+  async function appendFallbackFaviconIfAllowed(params, pageUrl, hasFavicon) {
+    if (hasFavicon) {
+      return;
+    }
+
+    let currentUrl;
+    try {
+      currentUrl = new URL(pageUrl);
+    } catch (e) {
+      return;
+    }
+
+    const fallbackFaviconUrl = `${currentUrl.origin}/favicon.ico`;
+
+    try {
+      const res = await fetch(fallbackFaviconUrl, { method: "HEAD" });
+      if (!res.ok) {
+        return;
+      }
+
+      params.append(
+        "favicon",
+        JSON.stringify({
+          rel: "icon",
+          href: normalizeUrl(fallbackFaviconUrl, pageUrl),
+        }),
+      );
+    } catch (e) {}
+  }
+
   let targetUrl = location.href;
   try {
     if (location.href.startsWith("chrome://offline")) {
@@ -104,11 +134,13 @@
   }
   params.set("url", targetUrl);
 
-  Array.from(
+  const faviconLinks = Array.from(
     document.querySelectorAll(
       "html > head > link[rel~=icon], html > head > link[rel~=apple-touch-icon]",
     ),
-  ).forEach(function (link) {
+  );
+
+  faviconLinks.forEach(function (link) {
     const faviconObj = Array.from(link.attributes).reduce(function (acc, attr) {
       if (attr.name === "href") {
         try {
@@ -129,6 +161,8 @@
       params.append("favicon", JSON.stringify(faviconObj));
     }
   });
+
+  await appendFallbackFaviconIfAllowed(params, targetUrl, faviconLinks.length > 0);
 
   const ogimgCandidates = [];
   try {
