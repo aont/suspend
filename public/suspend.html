@@ -49,6 +49,12 @@ async function setupSuspendServiceWorker() {
 }
 
 window.addEventListener("load", async (e) => {
+    if (location.search) {
+        const redirectUrl = `${location.pathname}#?${location.search.slice(1)}`;
+        location.href = redirectUrl;
+        return;
+    }
+
     await setupSuspendServiceWorker();
     const pageUrl = new URL(location.href);
     let searchParams = pageUrl.searchParams;
