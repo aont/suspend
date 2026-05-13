@@ -142,7 +142,7 @@ window.addEventListener("load", async (e) => {
             if (faviconHref) {
                 let faviconImg = document.createElement("img");
                 faviconImg.style.display = "none";
-                faviconImg.addEventListener("load", () => { faviconImg.style.display = "block"; });
+                faviconImg.addEventListener("load", () => { faviconImg.style.display = "inline-block"; });
                 faviconImg.setAttribute("referrerpolicy", "no-referrer");
                 console.log(faviconHref);
                 faviconImg.src = faviconHref;
@@ -153,7 +153,10 @@ window.addEventListener("load", async (e) => {
             }
         }
 
-        a.appendChild(document.createTextNode(searchParamsTitle ? searchParamsTitle : searchParamsUrl));
+        const linkText = document.createElement("span");
+        linkText.style.wordBreak = "break-all";
+        linkText.textContent = searchParamsTitle ? searchParamsTitle : searchParamsUrl;
+        a.appendChild(linkText);
 
         if (searchParamsTitle) {
             document.title = searchParamsTitle;
