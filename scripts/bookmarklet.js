@@ -89,6 +89,7 @@
   }
 
   let targetUrl = location.href;
+
   try {
     if (location.href.startsWith("chrome://offline")) {
       const reload = new URLSearchParams(location.search).get("reload");
@@ -98,40 +99,12 @@
     }
   } catch (e) {}
 
-  if (!location.href.startsWith("https://chatgpt.com/")) {
-    try {
-      let candidate = null;
-      const ogUrlMeta = document.querySelector(
-        'html > head > meta[property="og:url"]',
-      );
-      if (ogUrlMeta && ogUrlMeta.content) {
-        candidate = ogUrlMeta.content;
-      }
-
-      if (!candidate) {
-        const canonicalLink = document.querySelector(
-          'html > head > link[rel="canonical"]',
-        );
-        if (canonicalLink && canonicalLink.href) {
-          candidate = canonicalLink.href;
-        }
-      }
-
-      if (candidate) {
-        try {
-          const abs = new URL(candidate, location.href);
-          targetUrl = abs.href;
-        } catch (e) {
-          targetUrl = candidate;
-        }
-      }
-    } catch (e) {}
-  }
-
   const params = new URLSearchParams();
+
   if (document.title) {
     params.set("title", document.title);
   }
+
   params.set("url", targetUrl);
 
   const faviconLinks = Array.from(
@@ -162,11 +135,17 @@
     }
   });
 
-  await appendFallbackFaviconIfAllowed(params, targetUrl, faviconLinks.length > 0);
+  await appendFallbackFaviconIfAllowed(
+    params,
+    targetUrl,
+    faviconLinks.length > 0,
+  );
 
   const ogimgCandidates = [];
+
   try {
     const currentUrl = new URL(targetUrl);
+
     if (
       (currentUrl.hostname === "www.youtube.com" ||
         currentUrl.hostname === "m.youtube.com") &&
@@ -191,6 +170,7 @@
     document.querySelectorAll('html > head > meta[property="og:image"]'),
   ).forEach(function (meta) {
     let content = meta.content;
+
     if (content && !content.startsWith("data:")) {
       content = normalizeUrl(content, targetUrl);
       ogimgCandidates.push(content);
