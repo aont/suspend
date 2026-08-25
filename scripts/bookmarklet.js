@@ -1,4 +1,4 @@
-!async function () {
+!function () {
   function toDomainOmittedPath(urlObj) {
     return urlObj.pathname + urlObj.search + urlObj.hash;
   }
@@ -35,30 +35,15 @@
     return domainOmitted.length < targetUrl.length ? domainOmitted : targetUrl;
   }
 
-  async function appendOgimgIfAllowed(params, url) {
+  function appendOgimg(params, url) {
     if (!url || url.startsWith("data:")) {
       return;
     }
 
-    try {
-      const res = await fetch(url, { method: "HEAD" });
-      if (!res.ok) {
-        return;
-      }
-
-      const contentLengthHeader = res.headers.get("content-length");
-      if (contentLengthHeader) {
-        const size = Number(contentLengthHeader);
-        if (Number.isFinite(size) && size >= 512 * 1024) {
-          return;
-        }
-      }
-
-      params.append("ogimg", url);
-    } catch (e) {}
+    params.append("ogimg", url);
   }
 
-  async function appendFallbackFaviconIfAllowed(params, pageUrl, hasFavicon) {
+  function appendFallbackFavicon(params, pageUrl, hasFavicon) {
     if (hasFavicon) {
       return;
     }
@@ -72,20 +57,13 @@
 
     const fallbackFaviconUrl = `${currentUrl.origin}/favicon.ico`;
 
-    try {
-      const res = await fetch(fallbackFaviconUrl, { method: "HEAD" });
-      if (!res.ok) {
-        return;
-      }
-
-      params.append(
-        "favicon",
-        JSON.stringify({
-          rel: "icon",
-          href: normalizeUrl(fallbackFaviconUrl, pageUrl),
-        }),
-      );
-    } catch (e) {}
+    params.append(
+      "favicon",
+      JSON.stringify({
+        rel: "icon",
+        href: normalizeUrl(fallbackFaviconUrl, pageUrl),
+      }),
+    );
   }
 
   let targetUrl = location.href;
@@ -135,11 +113,7 @@
     }
   });
 
-  await appendFallbackFaviconIfAllowed(
-    params,
-    targetUrl,
-    faviconLinks.length > 0,
-  );
+  appendFallbackFavicon(params, targetUrl, faviconLinks.length > 0);
 
   const ogimgCandidates = [];
 
@@ -177,9 +151,9 @@
     }
   });
 
-  for (const ogimg of ogimgCandidates) {
-    await appendOgimgIfAllowed(params, ogimg);
-  }
+  ogimgCandidates.forEach(function (ogimg) {
+    appendOgimg(params, ogimg);
+  });
 
   const suspendUrl = "__SUSPEND_URL__#?" + params.toString();
   location.href = suspendUrl;
