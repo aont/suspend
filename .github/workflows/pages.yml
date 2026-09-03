@@ -11,7 +11,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: read
   pages: write
   id-token: write
@@ -35,24 +34,13 @@ jobs:
         run: npm install --no-save terser
 
       - name: Configure GitHub Pages
-        if: ${{ vars.GITHUB_PAGES_URL == '' }}
         id: configure_pages
         uses: actions/configure-pages@v5
-
-      - name: Save GitHub Pages URL
-        if: ${{ vars.GITHUB_PAGES_URL == '' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_PAGES_URL: ${{ steps.configure_pages.outputs.base_url }}
-        run: |
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/variables" \
-            -f name=GITHUB_PAGES_URL \
-            -f value="$GITHUB_PAGES_URL"
 
       - name: Build bookmarklet and index.html
         run: node scripts/build-bookmarklet.mjs
         env:
-          GITHUB_PAGES_URL: ${{ vars.GITHUB_PAGES_URL || steps.configure_pages.outputs.base_url }}
+          GITHUB_PAGES_URL: ${{ steps.configure_pages.outputs.base_url }}
 
       # Upload public/ as built as the Pages site artifact
       - name: Upload artifact
