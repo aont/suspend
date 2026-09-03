@@ -6,7 +6,8 @@ if (!pagesUrl) {
   throw new Error("GITHUB_PAGES_URL is required");
 }
 
-const suspendUrl = new URL("./suspend.html", pagesUrl).href;
+const pagesBaseUrl = pagesUrl.endsWith("/") ? pagesUrl : `${pagesUrl}/`;
+const suspendUrl = new URL("./suspend.html", pagesBaseUrl).href;
 const source = fs.readFileSync("scripts/bookmarklet.js", "utf8").replaceAll("__SUSPEND_URL__", suspendUrl);
 const result = await terser.minify(source, { compress: { inline: false, sequences: false, join_vars: false }, mangle: false });
 if (result.error || !result.code) {
